@@ -202,7 +202,7 @@ export default function PRTrackerApp() {
           width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 1000,
         }} />
         {/* status bar */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 90 }}>
+        <div className="status-bar-mock" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 90 }}>
           <IOSStatusBar dark={theme === 'dark'} />
         </div>
 
