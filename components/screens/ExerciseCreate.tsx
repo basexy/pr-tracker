@@ -9,7 +9,7 @@ interface ExerciseCreateProps {
   onCreated: () => void
 }
 
-const ALL_TAGS = ['petto', 'gambe', 'schiena', 'spalle', 'bicipiti', 'tricipiti', 'core', 'cardio']
+const ALL_TAGS = ['petto', 'gambe', 'dorso', 'spalle', 'bicipiti', 'tricipiti', 'core', 'cardio']
 
 export default function ExerciseCreate({ onBack, onCreated }: ExerciseCreateProps) {
   const [name, setName] = useState('')

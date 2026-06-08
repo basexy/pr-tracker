@@ -44,6 +44,14 @@ export async function insertPREntry(
   return data
 }
 
+export async function deletePREntry(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('pr_entries')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
 // ── Derived helpers ──────────────────────────────────────────────
 
 /**

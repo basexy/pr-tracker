@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { usePRData, useEntriesFor } from '@/hooks/usePRData'
-import { insertPREntry, buildPRData } from '@/lib/queries'
+import { insertPREntry, buildPRData, deletePREntry } from '@/lib/queries'
 import type { Screen, UserName } from '@/lib/types'
 
 import IOSStatusBar from '@/components/IOSStatusBar'
@@ -87,10 +87,17 @@ export default function PRTrackerApp() {
     setScreen(target)
   }, [])
 
-  const handleSavePR = useCallback(async ({ exId, value, isPR }: { exId: string; value: number; isPR: boolean }) => {
+  const handleSavePR = useCallback(async ({
+    exId, value, isPR, date,
+  }: { exId: string; value: number; isPR: boolean; date: string }) => {
     if (!user) return
     const prevPR = buildPRData(entries, exId)
-    await insertPREntry(user, exId, value)
+    let recordedAt: string | undefined
+    if (date) {
+      const [y, m, d] = date.split('-').map(Number)
+      recordedAt = new Date(y, m - 1, d, 12, 0, 0).toISOString()
+    }
+    await insertPREntry(user, exId, value, recordedAt)
     setInputOpen(false)
     refetch()
     if (isPR) {
@@ -98,31 +105,28 @@ export default function PRTrackerApp() {
     }
   }, [user, entries, refetch])
 
+  const handleDeleteEntry = useCallback(async (id: string) => {
+    await deletePREntry(id)
+    refetch()
+  }, [refetch])
+
   const closeCelebration = useCallback(() => {
-    const exId = celebration?.exId
+    const exId = celebration?.exId ?? null
     setCelebration(null)
-    if (exId) { setExerciseId(exId); setScreen('detail') }
+    if (exId) {
+      setExerciseId(exId)
+      setScreen('detail')
+    }
   }, [celebration])
 
   const activeTab: Screen | null = ['dash', 'list', 'hist', 'prof'].includes(screen) ? screen : null
   const currentEx = exerciseId ? exercises.find((e) => e.id === exerciseId) : null
 
-  // Not yet loaded (localStorage may not have hydrated)
   if (user === null) {
     return (
-      <div style={{
-        width: '100%', height: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#ECEBE6',
-      }}>
-        <div style={{
-          position: 'relative',
-          width: 402, height: 874,
-          borderRadius: 48, overflow: 'hidden',
-          background: '#FAF8F1',
-          boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
-        }}>
-          <div style={{
+      <div className="app-outer" style={{ background: '#ECEBE6' }}>
+        <div className="phone-frame" data-theme="light" style={{ background: '#FAF8F1' }}>
+          <div className="dynamic-island" style={{
             position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
             width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 1000,
           }} />
@@ -174,6 +178,7 @@ export default function PRTrackerApp() {
             entries={entries} otherEntries={otherEntries}
             onBack={() => setScreen('list')}
             onAddPR={() => setInputOpen(true)}
+            onDeleteEntry={handleDeleteEntry}
           />
         ) : null
       case 'create':
@@ -189,21 +194,10 @@ export default function PRTrackerApp() {
   }
 
   return (
-    <div style={{
-      width: '100%', height: '100vh',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#ECEBE6', padding: '20px 0', boxSizing: 'border-box',
-    }}>
-      <div data-theme={theme} style={{
-        position: 'relative',
-        width: 402, height: 874,
-        borderRadius: 48, overflow: 'hidden',
-        background: 'var(--bg)',
-        boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
-        fontFamily: 'var(--font-ui)',
-      }}>
+    <div className="app-outer" style={{ background: '#ECEBE6' }}>
+      <div data-theme={theme} className="phone-frame" style={{ background: 'var(--bg)' }}>
         {/* dynamic island */}
-        <div style={{
+        <div className="dynamic-island" style={{
           position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
           width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 1000,
         }} />
@@ -227,7 +221,7 @@ export default function PRTrackerApp() {
         )}
 
         {/* home indicator */}
-        <div style={{
+        <div className="home-indicator" style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 600,
           height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
           paddingBottom: 8, pointerEvents: 'none',

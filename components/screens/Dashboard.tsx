@@ -4,8 +4,7 @@ import TopBar from '@/components/primitives/TopBar'
 import HeroPR from '@/components/primitives/HeroPR'
 import BarChart from '@/components/primitives/BarChart'
 import Spark from '@/components/primitives/Spark'
-import Icon from '@/components/Icon'
-import { tagColor } from '@/components/Icon'
+import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import {
   buildPRData, findLatestEntry, countPRsThisMonth, calcStreak, calcTop3,
 } from '@/lib/queries'
@@ -76,7 +75,9 @@ export default function Dashboard({
       <div className="screen-scroll">
         <TopBar eyebrow={eyebrow} title={`Ciao, ${user === 'base' ? 'Base' : 'Dawg'}.`} user={user} onUser={onUser} />
         <div style={{ padding: '0 18px', textAlign: 'center', paddingTop: 40 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🏋️</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <Icon name="trophy" size={48} stroke={1.5} />
+          </div>
           <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5 }}>Nessun PR ancora.</div>
           <div style={{ color: 'var(--muted)', fontSize: 14, marginTop: 8 }}>
             Premi + per aggiungere il tuo primo record.
@@ -198,7 +199,7 @@ export default function Dashboard({
                           <span className="mono" style={{ fontSize: 10, color: 'var(--muted)', width: 14 }}>0{i + 1}</span>
                           <span className="name">{ex.name}</span>
                         </div>
-                        <div className="meta" style={{ marginLeft: 22 }}>#{ex.tag} · {pr.date}</div>
+                        <div className="meta" style={{ marginLeft: 22 }}>#{tagDisplay(ex.tag)} · {pr.date}</div>
                       </div>
                       <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Spark data={pr.hist} w={42} h={20} />

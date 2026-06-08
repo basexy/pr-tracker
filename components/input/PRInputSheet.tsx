@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Icon, { tagColor } from '@/components/Icon'
+import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import WheelPicker from './WheelPicker'
 import Keypad from './Keypad'
-import Stepper from './Stepper'
 import { buildPRData } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
 
@@ -14,10 +13,17 @@ interface PRInputSheetProps {
   exercises: Exercise[]
   entries: PREntry[]
   onClose: () => void
-  onSave: (args: { exId: string; value: number; isPR: boolean }) => void
+  onSave: (args: { exId: string; value: number; isPR: boolean; date: string }) => void
 }
 
-type Mode = 'scroll' | 'keypad' | 'stepper'
+type Mode = 'scroll' | 'keypad'
+
+function todayStr(): string {
+  const d = new Date()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${mm}-${dd}`
+}
 
 function ValueDisplay({ value, unit, delta, isPR }: { value: number; unit: string; delta: number; isPR: boolean }) {
   return (
@@ -33,7 +39,7 @@ function ValueDisplay({ value, unit, delta, isPR }: { value: number; unit: strin
         fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700, letterSpacing: 0.4,
         whiteSpace: 'nowrap',
       }}>
-        {isPR && '⚡ '}
+        {isPR && <Icon name="bolt" size={13} stroke={2.2} />}
         {delta > 0
           ? `+${delta.toFixed(delta % 1 ? 1 : 0)}${unit === 'reps' ? ' reps' : 'kg'} vs PR`
           : delta === 0 ? '= PR attuale'
@@ -49,6 +55,7 @@ export default function PRInputSheet({
   const [exId, setExId] = useState<string | null>(exerciseId)
   const [picking, setPicking] = useState(!exerciseId)
   const [mode, setMode] = useState<Mode>('scroll')
+  const [date, setDate] = useState(todayStr())
 
   const ex = exId ? exercises.find((e) => e.id === exId) ?? null : null
   const currentPR = exId ? buildPRData(entries, exId) : null
@@ -61,7 +68,7 @@ export default function PRInputSheet({
     if (currentPR && ex) setValue(currentPR.v + (ex.unit === 'kg' ? 2.5 : 1))
   }, [exId])
 
-  const todayLabel = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' })
+  const maxDate = todayStr()
 
   if (picking) {
     return (
@@ -89,7 +96,7 @@ export default function PRInputSheet({
                     <div className="body">
                       <div style={{ minWidth: 0 }}>
                         <div className="name">{e.name}</div>
-                        <div className="meta">#{e.tag}</div>
+                        <div className="meta">#{tagDisplay(e.tag)}</div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         {p && (
@@ -112,7 +119,6 @@ export default function PRInputSheet({
 
   if (!ex) return null
 
-  const step = ex.unit === 'kg' ? 2.5 : 1
   const minIncrement = ex.unit === 'kg' ? 0.5 : 1
   const delta = +(value - (currentPR?.v ?? 0)).toFixed(2)
   const isPR = currentPR ? value > currentPR.v : true
@@ -131,7 +137,7 @@ export default function PRInputSheet({
             <div style={{ minWidth: 0 }}>
               <div className="sheet-title">{ex.name}</div>
               <div className="sheet-sub">
-                #{ex.tag} · attuale{' '}
+                #{tagDisplay(ex.tag)} · attuale{' '}
                 <b style={{ color: 'var(--ink)' }}>{currentPR ? `${currentPR.v}${ex.unit}` : '—'}</b>
               </div>
             </div>
@@ -142,14 +148,35 @@ export default function PRInputSheet({
         </div>
 
         <div className="sheet-content">
-          {/* mode tabs */}
+          {/* date — at the top */}
+          <div className="row-group" style={{ marginBottom: 14 }}>
+            <div className="row" style={{ padding: '12px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink)' }}>
+                <Icon name="cal" size={16} stroke={1.7} />
+                <span style={{ fontSize: 14 }}>Data</span>
+              </div>
+              <input
+                type="date"
+                value={date}
+                max={maxDate}
+                onChange={(e) => setDate(e.target.value)}
+                style={{
+                  border: 0, outline: 0, background: 'transparent',
+                  fontFamily: 'var(--font-mono)', fontSize: 13,
+                  color: 'var(--muted)', cursor: 'pointer',
+                  colorScheme: 'light dark',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* mode tabs — scroll + keypad only */}
           <div className="input-modes">
             <button className={mode === 'scroll' ? 'is-active' : ''} onClick={() => setMode('scroll')}>Scroll</button>
             <button className={mode === 'keypad' ? 'is-active' : ''} onClick={() => setMode('keypad')}>Tastiera</button>
-            <button className={mode === 'stepper' ? 'is-active' : ''} onClick={() => setMode('stepper')}>Stepper</button>
           </div>
 
-          {(mode === 'stepper' || mode === 'keypad') && (
+          {mode === 'keypad' && (
             <ValueDisplay value={value} unit={ex.unit} delta={delta} isPR={isPR} />
           )}
 
@@ -159,26 +186,12 @@ export default function PRInputSheet({
           {mode === 'keypad' && (
             <Keypad value={value} setValue={setValue} unit={ex.unit} />
           )}
-          {mode === 'stepper' && (
-            <Stepper value={value} setValue={setValue} step={step} unit={ex.unit} />
-          )}
-
-          {/* date */}
-          <div className="row-group" style={{ marginTop: 14 }}>
-            <div className="row" style={{ padding: '12px 16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink)' }}>
-                <Icon name="cal" size={16} stroke={1.7} />
-                <span style={{ fontSize: 14 }}>Data</span>
-              </div>
-              <div className="mono" style={{ fontSize: 13, color: 'var(--muted)' }}>oggi · {todayLabel}</div>
-            </div>
-          </div>
         </div>
 
         <div className="sheet-footer">
           <button
             className="btn btn-lime"
-            onClick={() => onSave({ exId: ex.id, value, isPR })}
+            onClick={() => onSave({ exId: ex.id, value, isPR, date })}
             disabled={value <= 0}
             style={{ opacity: value > 0 ? 1 : 0.4 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>

@@ -332,3 +332,44 @@ body {
 .row-group { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
 .tnum { font-feature-settings: 'tnum'; }
 .mono { font-family: var(--font-mono); }
+
+/* ── Responsive phone frame ─────────────────────────────────────── */
+.app-outer {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ECEBE6;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
+.phone-frame {
+  position: relative;
+  width: 402px;
+  height: 874px;
+  border-radius: 48px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12);
+  font-family: var(--font-ui);
+  flex-shrink: 0;
+}
+
+@media (max-width: 430px), (max-height: 890px) and (max-width: 430px) {
+  .app-outer {
+    padding: 0;
+    background: transparent;
+  }
+  .phone-frame {
+    width: 100vw;
+    width: 100svw;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dynamic-island { display: none !important; }
+  .home-indicator  { display: none !important; }
+}

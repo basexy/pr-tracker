@@ -29,7 +29,7 @@ export default function Celebration({ exercise, currentPR, value, user, onClose 
         opacity: 0.18, pointerEvents: 'none',
       }} />
 
-      {/* confetti */}
+      {/* confetti — pointer-events none so they never block the CTA button */}
       {Array.from({ length: 16 }).map((_, i) => {
         const angle = (i / 16) * Math.PI * 2
         const cx = Math.cos(angle) * (140 + (i % 3) * 30)
@@ -38,6 +38,7 @@ export default function Celebration({ exercise, currentPR, value, user, onClose 
           <div key={i} style={{
             position: 'absolute', top: '40%', left: '50%',
             width: 8, height: 8, borderRadius: 2,
+            pointerEvents: 'none',
             background: i % 3 === 0 ? 'var(--lime)' : i % 3 === 1 ? '#fff' : '#ff7a59',
             // @ts-expect-error CSS custom property
             '--cx': cx + 'px',
@@ -51,28 +52,30 @@ export default function Celebration({ exercise, currentPR, value, user, onClose 
       <div style={{ height: 56 }} />
 
       {/* close */}
-      <div style={{ position: 'absolute', top: 60, right: 22, zIndex: 5 }}>
+      <div style={{ position: 'absolute', top: 60, right: 22, zIndex: 10 }}>
         <button onClick={onClose} style={{
           appearance: 'none', cursor: 'pointer',
           width: 36, height: 36, borderRadius: 999,
           background: 'rgba(255,255,255,0.1)', color: 'var(--lime)',
           border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon name="close" size={16} stroke={2} />
+          <Icon name="close" size={16} stroke={2.2} />
         </button>
       </div>
 
       <div style={{
         position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', padding: '0 40px',
-        textAlign: 'center', zIndex: 4,
+        textAlign: 'center', zIndex: 4, pointerEvents: 'none',
       }}>
         <div style={{
           fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: 2,
           textTransform: 'uppercase', color: 'var(--lime)',
           animation: 'rise .5s .1s both', whiteSpace: 'nowrap',
+          display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          ⚡ Nuovo personal record
+          <Icon name="bolt" size={13} stroke={2.2} />
+          Nuovo personal record
         </div>
         <div style={{
           marginTop: 18, fontSize: 132, fontWeight: 800, letterSpacing: -5,
@@ -108,12 +111,16 @@ export default function Celebration({ exercise, currentPR, value, user, onClose 
         </div>
       </div>
 
-      {/* bottom CTA */}
+      {/* bottom CTA — high z-index, fully interactive */}
       <div style={{
         position: 'absolute', left: 22, right: 22, bottom: 50,
         animation: 'rise .5s .8s both',
+        zIndex: 10,
       }}>
-        <button onClick={onClose} className="btn btn-lime">
+        <button
+          onClick={onClose}
+          className="btn btn-lime"
+          style={{ pointerEvents: 'auto' }}>
           Continua
         </button>
         <div style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)' }}>

@@ -1,7 +1,7 @@
 'use client'
 
 import TopBar from '@/components/primitives/TopBar'
-import { tagColor } from '@/components/Icon'
+import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import { buildPRData, calcStreak, countPRsThisMonth } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
 
@@ -22,7 +22,6 @@ const IT_MONTHS: Record<string, string> = {
 export default function HistoryScreen({
   user, onUser, exercises, entries, onOpenExercise,
 }: HistoryScreenProps) {
-  const prMonth = countPRsThisMonth(entries)
   const streak = calcStreak(entries)
   const totalKg = entries.reduce((s, e) => s + Number(e.value), 0)
 
@@ -38,7 +37,6 @@ export default function HistoryScreen({
     if (!ex) return
     const pr = buildPRData(entries, ex.id)
     if (!groups[key]) groups[key] = []
-    // Deduplicate: only show the current PR per exercise per month
     if (!groups[key].some((g) => g.ex.id === ex.id)) {
       groups[key].push({ ex, pr })
     }
@@ -49,7 +47,7 @@ export default function HistoryScreen({
   return (
     <div className="screen-scroll">
       <TopBar
-        eyebrow={`${totalPRs} PR registrati · 2026`}
+        eyebrow=""
         title="Storico"
         user={user} onUser={onUser}
       />
@@ -65,6 +63,7 @@ export default function HistoryScreen({
               <div key={i} style={{
                 borderLeft: i ? '1px solid var(--line)' : 'none',
                 paddingLeft: i ? 12 : 0,
+                textAlign: 'center',
               }}>
                 <div className="eyebrow" style={{ fontSize: 9.5, letterSpacing: 0.8 }}>{s.l}</div>
                 <div style={{
@@ -125,7 +124,7 @@ export default function HistoryScreen({
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{ex.name}</div>
                         <div className="mono" style={{ fontSize: 10.5, color: 'var(--muted)', marginTop: 2, whiteSpace: 'nowrap' }}>
-                          #{ex.tag} · {pr?.date ?? '—'}
+                          #{tagDisplay(ex.tag)} · {pr?.date ?? '—'}
                         </div>
                       </div>
                       {pr && (
@@ -149,8 +148,10 @@ export default function HistoryScreen({
 
         {entries.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--muted)' }}>
-            <div style={{ fontSize: 36 }}>📋</div>
-            <div style={{ fontSize: 16, fontWeight: 600, marginTop: 12 }}>Nessun PR ancora.</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+              <Icon name="note" size={36} stroke={1.5} />
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>Nessun PR ancora.</div>
           </div>
         )}
       </div>

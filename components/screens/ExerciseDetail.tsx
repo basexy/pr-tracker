@@ -1,9 +1,9 @@
 'use client'
 
-import Icon, { tagColor } from '@/components/Icon'
+import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import UserSegmented from '@/components/primitives/UserSegmented'
 import LineChart from '@/components/primitives/LineChart'
-import { buildPRData } from '@/lib/queries'
+import { buildPRData, formatDate } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
 
 interface ExerciseDetailProps {
@@ -14,12 +14,13 @@ interface ExerciseDetailProps {
   otherEntries: PREntry[]
   onBack: () => void
   onAddPR: () => void
+  onDeleteEntry?: (id: string) => void
 }
 
 const IT_MONTHS = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic']
 
 export default function ExerciseDetail({
-  exercise, user, onUser, entries, otherEntries, onBack, onAddPR,
+  exercise, user, onUser, entries, otherEntries, onBack, onAddPR, onDeleteEntry,
 }: ExerciseDetailProps) {
   const pr = buildPRData(entries, exercise.id)
   const other = buildPRData(otherEntries, exercise.id)
@@ -27,6 +28,11 @@ export default function ExerciseDetail({
   const meAhead = pr && other ? pr.v > other.v : false
 
   const history = pr?.hist ?? []
+
+  // Raw entries for this exercise sorted newest-first (for delete-able history list)
+  const rawEntries = [...entries]
+    .filter((e) => e.exercise_id === exercise.id)
+    .sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
 
   // Labels for chart x-axis: last N months
   const now = new Date()
@@ -49,7 +55,7 @@ export default function ExerciseDetail({
           color: 'var(--ink)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon name="chevL" size={20} stroke={2} />
+          <Icon name="chevL" size={20} stroke={2.2} />
         </button>
         <UserSegmented user={user} onChange={onUser} />
       </div>
@@ -58,7 +64,7 @@ export default function ExerciseDetail({
         {/* title */}
         <div className="eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: tagColor(exercise.tag), display: 'inline-block' }} />
-          #{exercise.tag} · misura in {exercise.unit}
+          #{tagDisplay(exercise.tag)} · misura in {exercise.unit}
         </div>
         <h1 style={{ margin: '6px 0 0', fontSize: 36, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.05 }}>
           {exercise.name}
@@ -138,17 +144,18 @@ export default function ExerciseDetail({
               </div>
             )}
 
-            {/* History */}
+            {/* History — full list of raw entries with delete */}
             <div style={{ marginTop: 16 }}>
-              <div className="eyebrow" style={{ padding: '0 4px 10px' }}>Storico PR · {history.length} progressioni</div>
+              <div className="eyebrow" style={{ padding: '0 4px 10px' }}>Storico PR · {rawEntries.length} sessioni</div>
               <div className="row-group">
-                {[...history].reverse().map((v, i) => {
+                {rawEntries.map((entry, i) => {
+                  const v = Number(entry.value)
+                  const nextEntry = rawEntries[i + 1]
+                  const prevV = nextEntry ? Number(nextEntry.value) : null
+                  const delta = prevV !== null ? +(v - prevV).toFixed(2) : null
                   const isCurrent = i === 0
-                  const prevVal = history[history.length - 2 - i]
-                  const delta = prevVal != null ? v - prevVal : 0
-                  const month = labels[history.length - 1 - i] ?? '—'
                   return (
-                    <div key={i} className="row" style={{ borderTop: i ? '1px solid var(--line)' : 'none' }}>
+                    <div key={entry.id} className="row" style={{ borderTop: i ? '1px solid var(--line)' : 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{
                           width: 32, height: 32, borderRadius: 'var(--r-pill)',
@@ -157,22 +164,38 @@ export default function ExerciseDetail({
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 11,
                         }}>
-                          {isCurrent ? <Icon name="trophy" size={16} stroke={2} /> : `#${history.length - i}`}
+                          {isCurrent
+                            ? <Icon name="trophy" size={16} stroke={2.2} />
+                            : `#${rawEntries.length - i}`}
                         </div>
                         <div>
                           <div className="mono tnum" style={{ fontSize: 16, fontWeight: 600 }}>
                             {v} <span style={{ fontSize: 10, color: 'var(--muted)' }}>{exercise.unit}</span>
                           </div>
                           <div className="mono" style={{ fontSize: 10.5, color: 'var(--muted)', marginTop: 2 }}>
-                            {month} 2026
+                            {formatDate(entry.recorded_at)}
                           </div>
                         </div>
                       </div>
-                      {delta > 0 && (
-                        <div className="mono" style={{ fontSize: 11.5, color: 'var(--lime-deep)', fontWeight: 700 }}>
-                          ▲ +{delta.toFixed(delta % 1 ? 1 : 0)}
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {delta !== null && delta > 0 && (
+                          <div className="mono" style={{ fontSize: 11.5, color: 'var(--lime-deep)', fontWeight: 700 }}>
+                            ▲ +{delta.toFixed(delta % 1 ? 1 : 0)}
+                          </div>
+                        )}
+                        {onDeleteEntry && (
+                          <button
+                            onClick={() => onDeleteEntry(entry.id)}
+                            style={{
+                              appearance: 'none', border: 0, cursor: 'pointer',
+                              background: 'transparent', color: 'var(--muted)',
+                              width: 32, height: 32, borderRadius: 8,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                            <Icon name="trash" size={16} stroke={1.8} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )
                 })}
@@ -181,7 +204,9 @@ export default function ExerciseDetail({
           </>
         ) : (
           <div style={{ marginTop: 32, textAlign: 'center', color: 'var(--muted)' }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>📭</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+              <Icon name="medal" size={36} stroke={1.5} />
+            </div>
             <div style={{ fontSize: 16, fontWeight: 600 }}>Nessun PR ancora.</div>
             <div style={{ fontSize: 13, marginTop: 6 }}>Premi &quot;Aggiungi PR&quot; per iniziare.</div>
           </div>

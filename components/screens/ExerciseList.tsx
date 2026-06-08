@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import TopBar from '@/components/primitives/TopBar'
-import Icon, { tagColor } from '@/components/Icon'
+import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import { buildPRData } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
 
@@ -15,7 +15,7 @@ interface ExerciseListProps {
   onCreate: () => void
 }
 
-const ALL_TAGS = ['tutti', 'petto', 'gambe', 'schiena', 'spalle', 'bicipiti', 'tricipiti']
+const ALL_TAGS = ['tutti', 'petto', 'gambe', 'dorso', 'spalle', 'bicipiti', 'tricipiti']
 
 export default function ExerciseList({
   user, onUser, exercises, entries, onOpenExercise, onCreate,
@@ -24,7 +24,11 @@ export default function ExerciseList({
   const [query, setQuery] = useState('')
 
   const filtered = exercises.filter((e) => {
-    if (filter !== 'tutti' && e.tag !== filter) return false
+    if (filter !== 'tutti') {
+      // 'dorso' matches both new 'dorso' tag and legacy 'schiena' tag in DB
+      const exDisplay = tagDisplay(e.tag)
+      if (exDisplay !== filter) return false
+    }
     if (query && !e.name.toLowerCase().includes(query.toLowerCase())) return false
     return true
   })
@@ -61,7 +65,7 @@ export default function ExerciseList({
               appearance: 'none', border: 0, background: 'transparent',
               color: 'var(--muted)', cursor: 'pointer',
             }}>
-              <Icon name="close" size={14} stroke={2} />
+              <Icon name="close" size={14} stroke={2.2} />
             </button>
           )}
         </div>
@@ -103,7 +107,7 @@ export default function ExerciseList({
                 <div className="body">
                   <div style={{ minWidth: 0 }}>
                     <div className="name">{ex.name}</div>
-                    <div className="meta">#{ex.tag} · {pr?.date ?? '—'}</div>
+                    <div className="meta">#{tagDisplay(ex.tag)} · {pr?.date ?? '—'}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     {pr ? (
@@ -136,7 +140,7 @@ export default function ExerciseList({
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             cursor: 'pointer',
           }}>
-          <Icon name="plus" size={16} stroke={2} />
+          <Icon name="plus" size={16} stroke={2.2} />
           Crea nuovo esercizio
         </button>
       </div>
