@@ -12,6 +12,7 @@ import IOSStatusBar from '@/components/IOSStatusBar'
 import TabBar from '@/components/primitives/TabBar'
 
 // Screens — PR tracker (unchanged)
+import Dashboard from '@/components/screens/Dashboard'
 import ExerciseList from '@/components/screens/ExerciseList'
 import ExerciseDetail from '@/components/screens/ExerciseDetail'
 import ExerciseCreate from '@/components/screens/ExerciseCreate'
@@ -161,7 +162,7 @@ export default function PRTrackerApp() {
   }, [pickerContext, workout])
 
   // ── Active tab calculation ─────────────────────────────────────
-  const TAB_SCREENS: Screen[] = ['dash', 'schede', 'list', 'prof']
+  const TAB_SCREENS: Screen[] = ['dash', 'schede', 'overview', 'list', 'prof']
   const activeTab: Screen | null = TAB_SCREENS.includes(screen) ? screen : null
 
   const currentEx = exerciseId ? exercises.find((e) => e.id === exerciseId) : null
@@ -225,6 +226,19 @@ export default function PRTrackerApp() {
             }}
           />
         ) : null
+
+      // ── Overview (PR dashboard) ────────────────────────────────
+      case 'overview':
+        return (
+          <Dashboard
+            user={user!} onUser={setUser}
+            exercises={exercises}
+            baseEntries={baseEntries}
+            dawgEntries={dawgEntries}
+            onOpenExercise={openExercise}
+            onNav={(t) => { if (t === 'input') setInputOpen(true); else handleNav(t as Screen) }}
+          />
+        )
 
       // ── Schede ─────────────────────────────────────────────────
       case 'schede':

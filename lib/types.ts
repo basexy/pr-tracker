@@ -80,6 +80,7 @@ export type Theme = 'light' | 'dark'
 
 export type Screen =
   | 'dash'
+  | 'overview'
   | 'list'
   | 'hist'
   | 'prof'

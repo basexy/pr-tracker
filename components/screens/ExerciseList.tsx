@@ -38,7 +38,6 @@ export default function ExerciseList({
       <TopBar
         eyebrow={`${exercises.length} esercizi tracciati`}
         title="Esercizi"
-        user={user} onUser={onUser}
       />
 
       <div style={{ padding: '0 18px' }}>

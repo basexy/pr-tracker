@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import Icon, { tagColor, tagLabel } from '@/components/Icon'
 import type { UserName, WorkoutPlan } from '@/lib/types'
-import UserSegmented from '@/components/primitives/UserSegmented'
-
 const MUSCLE_GROUPS = [
   'petto', 'dorso', 'gambe', 'spalle', 'braccia', 'full_body',
 ]
@@ -27,16 +25,13 @@ export default function SchedeList({ user, onUser, workoutPlans, onOpenPlan, onC
         padding: '56px 20px 14px', background: 'var(--bg)',
         borderBottom: '1px solid var(--line)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>
-              Allenamento
-            </div>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: 'var(--ink)' }}>
-              Le mie schede
-            </h1>
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>
+            Allenamento
           </div>
-          <UserSegmented user={user} onChange={onUser} />
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: 'var(--ink)' }}>
+            Le mie schede
+          </h1>
         </div>
       </div>
 

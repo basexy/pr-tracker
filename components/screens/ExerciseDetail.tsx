@@ -1,7 +1,6 @@
 'use client'
 
 import Icon, { tagColor, tagDisplay } from '@/components/Icon'
-import UserSegmented from '@/components/primitives/UserSegmented'
 import LineChart from '@/components/primitives/LineChart'
 import { buildPRData, formatDate } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
@@ -45,10 +44,7 @@ export default function ExerciseDetail({
   return (
     <div className="screen-scroll" style={{ paddingBottom: 130 }}>
       {/* back row */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 16px 4px',
-      }}>
+      <div style={{ padding: '6px 16px 4px' }}>
         <button onClick={onBack} style={{
           appearance: 'none', border: 0, background: 'var(--surface-2)',
           width: 40, height: 40, borderRadius: 'var(--r-pill)',
@@ -57,7 +53,6 @@ export default function ExerciseDetail({
         }}>
           <Icon name="chevL" size={20} stroke={2.2} />
         </button>
-        <UserSegmented user={user} onChange={onUser} />
       </div>
 
       <div style={{ padding: '8px 22px 0' }}>

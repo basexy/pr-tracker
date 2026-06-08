@@ -140,14 +140,14 @@ export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLogging
           <div style={{ width: 28, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             #
           </div>
-          <div style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             Reps
           </div>
-          <div style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
             Kg
           </div>
-          <div style={{ width: 44 }} />
-          <div style={{ width: 32 }} />
+          <div style={{ width: 36 }} />
+          <div style={{ width: 30 }} />
         </div>
 
         {/* Sets list */}
@@ -228,9 +228,10 @@ function SetRow({
         value={set.reps}
         onChange={(e) => onUpdate('reps', e.target.value)}
         style={{
-          flex: 1, appearance: 'none', border: '1px solid var(--line)',
+          flex: 1, minWidth: 0, boxSizing: 'border-box',
+          appearance: 'none', border: '1px solid var(--line)',
           background: 'var(--surface-2)', borderRadius: 8,
-          padding: '8px', textAlign: 'center',
+          padding: '8px 4px', textAlign: 'center',
           fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 600, color: 'var(--ink)',
         }}
       />
@@ -243,9 +244,10 @@ function SetRow({
         value={set.kg}
         onChange={(e) => onUpdate('kg', e.target.value)}
         style={{
-          flex: 1, appearance: 'none', border: '1px solid var(--line)',
+          flex: 1, minWidth: 0, boxSizing: 'border-box',
+          appearance: 'none', border: '1px solid var(--line)',
           background: 'var(--surface-2)', borderRadius: 8,
-          padding: '8px', textAlign: 'center',
+          padding: '8px 4px', textAlign: 'center',
           fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 600, color: 'var(--ink)',
         }}
       />

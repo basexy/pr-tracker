@@ -73,7 +73,7 @@ export default function Dashboard({
   if (entries.length === 0) {
     return (
       <div className="screen-scroll">
-        <TopBar eyebrow={eyebrow} title={`Ciao, ${user === 'base' ? 'Base' : 'Dawg'}.`} user={user} onUser={onUser} />
+        <TopBar eyebrow={eyebrow} title={`Ciao, ${user === 'base' ? 'Base' : 'Dawg'}.`} />
         <div style={{ padding: '0 18px', textAlign: 'center', paddingTop: 40 }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
             <Icon name="trophy" size={48} stroke={1.5} />
@@ -92,7 +92,6 @@ export default function Dashboard({
       <TopBar
         eyebrow={eyebrow}
         title={`Ciao, ${user === 'base' ? 'Base' : 'Dawg'}.`}
-        user={user} onUser={onUser}
       />
 
       <div style={{ padding: '0 18px' }}>

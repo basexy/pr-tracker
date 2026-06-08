@@ -8,8 +8,6 @@ import type {
 } from '@/lib/types'
 import type { WorkoutDayData } from '@/hooks/useWorkoutData'
 import { formatDayFull, formatDayLabel, todayStr } from '@/lib/queries'
-import UserSegmented from '@/components/primitives/UserSegmented'
-
 interface WorkoutDiaryProps {
   user: UserName
   onUser: (u: UserName) => void
@@ -197,11 +195,10 @@ export default function WorkoutDiary({
         background: 'var(--bg)',
         borderBottom: '1px solid var(--line)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div style={{ marginBottom: 4 }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase' }}>
             Diario
           </span>
-          <UserSegmented user={user} onChange={onUser} />
         </div>
         {/* Day navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
@@ -243,7 +240,7 @@ export default function WorkoutDiary({
       {/* Scrollable body */}
       <div
         className={`screen-scroll ${animClass}`}
-        style={{ paddingTop: 144 }}
+        style={{ paddingTop: 128 }}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
       >
@@ -260,7 +257,7 @@ export default function WorkoutDiary({
         ) : plan ? (
           // ── Assigned plan ───────────────────────────────────────
           <>
-            <div style={{ padding: '0 20px 12px' }}>
+            <div style={{ padding: '12px 20px 12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>

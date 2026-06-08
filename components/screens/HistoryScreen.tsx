@@ -49,7 +49,6 @@ export default function HistoryScreen({
       <TopBar
         eyebrow=""
         title="Storico"
-        user={user} onUser={onUser}
       />
       <div style={{ padding: '0 18px' }}>
         {/* Stats stripe */}
