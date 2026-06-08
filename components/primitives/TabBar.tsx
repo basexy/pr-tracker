@@ -18,7 +18,7 @@ const RIGHT_TABS = [
 
 export default function TabBar({ screen, onNav }: TabBarProps) {
   return (
-    <nav className="tabbar" style={{ position: 'relative', overflow: 'visible' }}>
+    <nav className="tabbar">
       {LEFT_TABS.map((t) => (
         <button
           key={t.id}
@@ -30,22 +30,16 @@ export default function TabBar({ screen, onNav }: TabBarProps) {
         </button>
       ))}
 
-      {/* Raised center button */}
       <button
+        className="tab-fab"
         onClick={() => onNav('overview')}
         aria-label="Panoramica"
         style={{
-          appearance: 'none', border: 0, cursor: 'pointer',
-          width: 54, height: 54, borderRadius: 27, flexShrink: 0,
-          background: screen === 'overview' ? 'var(--ink)' : 'var(--ink)',
+          background: 'var(--ink)',
           color: 'var(--lime)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginTop: -20,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
-          transition: 'transform 0.15s, box-shadow 0.15s',
-          transform: screen === 'overview' ? 'scale(0.94)' : 'scale(1)',
+          opacity: screen === 'overview' ? 0.85 : 1,
         }}>
-        <Icon name="flash" size={24} stroke={screen === 'overview' ? 2.5 : 2} />
+        <Icon name="flash" size={24} stroke={2} />
       </button>
 
       {RIGHT_TABS.map((t) => (

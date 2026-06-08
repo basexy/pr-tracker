@@ -195,11 +195,6 @@ export default function WorkoutDiary({
         background: 'var(--bg)',
         borderBottom: '1px solid var(--line)',
       }}>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase' }}>
-            Diario
-          </span>
-        </div>
         {/* Day navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
           <button
@@ -240,7 +235,7 @@ export default function WorkoutDiary({
       {/* Scrollable body */}
       <div
         className={`screen-scroll ${animClass}`}
-        style={{ paddingTop: 128 }}
+        style={{ paddingTop: 112 }}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
       >
