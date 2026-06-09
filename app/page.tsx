@@ -5,7 +5,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { usePRData, useEntriesFor } from '@/hooks/usePRData'
 import { useWorkoutData } from '@/hooks/useWorkoutData'
-import { insertPREntry, buildPRData, deletePREntry } from '@/lib/queries'
+import { insertPREntry, buildPRData, deletePREntry, deleteExercise } from '@/lib/queries'
 import type { Screen, UserName, LogContext, PickerContext } from '@/lib/types'
 
 import IOSStatusBar from '@/components/IOSStatusBar'
@@ -91,6 +91,8 @@ export default function PRTrackerApp() {
   const [logContext, setLogContext] = useState<LogContext | null>(null)
   const [pickerContext, setPickerContext] = useState<PickerContext | null>(null)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
+  const [editExerciseId, setEditExerciseId] = useState<string | null>(null)
+  const [createSource, setCreateSource] = useState<'list' | 'picker' | 'prof'>('list')
 
   const workout = useWorkoutData(user ?? 'base', exercises)
 
@@ -123,6 +125,11 @@ export default function PRTrackerApp() {
 
   const handleDeleteEntry = useCallback(async (id: string) => {
     await deletePREntry(id)
+    refetch()
+  }, [refetch])
+
+  const handleDeleteExercise = useCallback(async (id: string) => {
+    await deleteExercise(id)
     refetch()
   }, [refetch])
 
@@ -222,6 +229,7 @@ export default function PRTrackerApp() {
             onSelect={handlePickerSelect}
             onBack={() => setScreen(pickerContext.returnScreen)}
             onCreateNew={() => {
+              setCreateSource('picker')
               setScreen('create')
             }}
           />
@@ -281,7 +289,7 @@ export default function PRTrackerApp() {
           <ExerciseList
             user={user!} onUser={setUser}
             exercises={exercises} entries={entries}
-            onOpenExercise={openExercise} onCreate={() => setScreen('create')}
+            onOpenExercise={openExercise} onCreate={() => { setCreateSource('list'); setScreen('create') }}
           />
         )
 
@@ -301,6 +309,10 @@ export default function PRTrackerApp() {
             theme={theme} onTheme={setTheme}
             accent={accent} onAccent={setAccent}
             entries={entries}
+            exercises={exercises}
+            onCreateExercise={() => { setCreateSource('prof'); setEditExerciseId(null); setScreen('create') }}
+            onEditExercise={(id) => { setCreateSource('prof'); setEditExerciseId(id); setScreen('create') }}
+            onDeleteExercise={handleDeleteExercise}
           />
         )
 
@@ -318,14 +330,18 @@ export default function PRTrackerApp() {
       case 'create':
         return (
           <ExerciseCreate
+            exercise={editExerciseId ? exercises.find((e) => e.id === editExerciseId) : undefined}
             onBack={() => {
-              // Return to the appropriate screen after creating an exercise
-              if (pickerContext) setScreen('exercise-picker')
+              setEditExerciseId(null)
+              if (createSource === 'picker') setScreen('exercise-picker')
+              else if (createSource === 'prof') setScreen('prof')
               else setScreen('list')
             }}
             onCreated={() => {
+              setEditExerciseId(null)
               refetch()
-              if (pickerContext) setScreen('exercise-picker')
+              if (createSource === 'picker') setScreen('exercise-picker')
+              else if (createSource === 'prof') setScreen('prof')
               else setScreen('list')
             }}
           />

@@ -3,7 +3,7 @@ import {
   X, Check, CaretLeft, CaretRight, CaretDown, ArrowUp, ArrowLeft, Trophy, Lightning,
   PencilSimple, Trash, Moon, Sun, Palette, Target, Circle, CalendarBlank,
   Note, Medal, ArrowsLeftRight, BookOpen, ClipboardText, CheckCircle,
-  Barbell, SmileyMeh, ArrowCounterClockwise,
+  Barbell, SmileyMeh, ArrowCounterClockwise, Fire,
 } from '@phosphor-icons/react'
 
 type PhosphorWeight = 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'
@@ -44,6 +44,7 @@ const ICON_MAP: Record<string, PhosphorComp> = {
   barbell:    Barbell,
   rest:       SmileyMeh,
   reset:      ArrowCounterClockwise,
+  fire:       Fire,
 }
 
 function strokeToWeight(stroke: number): PhosphorWeight {

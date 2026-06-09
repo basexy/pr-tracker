@@ -218,7 +218,7 @@ export default function PlanDetail({
           <div className="sheet">
             <div className="sheet-grab" />
             <div style={{ padding: '8px 22px 20px', textAlign: 'center' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🗑️</div>
+              <div style={{ marginBottom: 8, color: 'var(--muted)', display: 'flex', justifyContent: 'center' }}><Icon name="trash" size={32} stroke={1.5} /></div>
               <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)', marginBottom: 6 }}>
                 Elimina scheda?
               </div>

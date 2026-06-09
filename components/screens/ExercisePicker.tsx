@@ -109,7 +109,7 @@ export default function ExercisePicker({ ctx, exercises, onSelect, onBack, onCre
       {/* List */}
       <div className="screen-scroll" style={{ paddingTop: 196 }}>
         {/* Create new exercise option */}
-        <div style={{ padding: '0 20px 8px' }}>
+        <div style={{ padding: '8px 20px 8px' }}>
           <button
             onClick={onCreateNew}
             style={{

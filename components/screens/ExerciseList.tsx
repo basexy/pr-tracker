@@ -70,7 +70,7 @@ export default function ExerciseList({
         </div>
 
         {/* chips */}
-        <div className="chip-row" style={{ marginTop: 12 }}>
+        <div className="chip-row" style={{ marginTop: 12, flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 4 }}>
           {ALL_TAGS.map((t) => (
             <button key={t}
               className={'chip' + (filter === t ? ' is-active' : '')}

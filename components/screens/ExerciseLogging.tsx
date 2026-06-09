@@ -125,7 +125,7 @@ export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLogging
           <div style={{ flex: 1, height: 4, background: 'var(--surface-2)', borderRadius: 2, overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 2,
-              background: color,
+              background: 'var(--lime)',
               width: sets.length > 0 ? `${(doneSets / sets.length) * 100}%` : '0%',
               transition: 'width 0.3s ease',
             }} />
@@ -184,7 +184,7 @@ export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLogging
         {/* Done button */}
         <div style={{ padding: '16px 20px' }}>
           <button
-            className="btn btn-primary"
+            className="btn btn-lime"
             onClick={handleDone}
             disabled={saving}>
             {saving ? 'Salvo…' : 'Fine'}
@@ -216,7 +216,7 @@ function SetRow({
       {/* Set number */}
       <div style={{
         width: 28, fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600,
-        color: set.done ? color : 'var(--muted)', flexShrink: 0,
+        color: set.done ? 'var(--lime-deep)' : 'var(--muted)', flexShrink: 0,
       }}>
         {index + 1}
       </div>
@@ -258,8 +258,8 @@ function SetRow({
         style={{
           appearance: 'none', border: 0, cursor: 'pointer',
           width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-          background: set.done ? color : 'var(--surface-2)',
-          color: set.done ? '#fff' : 'var(--muted)',
+          background: set.done ? 'var(--lime)' : 'var(--surface-2)',
+          color: set.done ? 'var(--lime-on)' : 'var(--muted)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background 0.2s',
         }}>

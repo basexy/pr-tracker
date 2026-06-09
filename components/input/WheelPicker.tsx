@@ -1,5 +1,7 @@
 'use client'
 
+import Icon from '@/components/Icon'
+
 interface WheelPickerProps {
   value: number
   setValue: (v: number) => void
@@ -33,7 +35,7 @@ export default function WheelPicker({ value, setValue, step, unit, delta, isPR }
           fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
           whiteSpace: 'nowrap',
         }}>
-          {isPR && '⚡ '}
+          {isPR && <Icon name="flash" size={12} stroke={2.5} />}
           {delta > 0
             ? `+${delta.toFixed(delta % 1 ? 1 : 0)}${unit === 'reps' ? ' reps' : 'kg'} vs PR`
             : delta === 0 ? '= PR attuale'

@@ -266,8 +266,8 @@ export default function WorkoutDiary({
                       {tagLabel(plan.muscle_group)}
                     </span>
                     {workoutStreak > 0 && (
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--lime-deep)', letterSpacing: 0.5 }}>
-                        🔥 {workoutStreak} giorni
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--lime-deep)', letterSpacing: 0.5, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                        <Icon name="fire" size={12} /> {workoutStreak} giorni
                       </span>
                     )}
                   </div>
@@ -445,7 +445,7 @@ function EmptyDayView({
   return (
     <div style={{ padding: '20px 20px' }}>
       <div style={{ textAlign: 'center', padding: '32px 0 24px' }}>
-        <div style={{ fontSize: 44, marginBottom: 8 }}>📋</div>
+        <div style={{ marginBottom: 8, color: 'var(--muted)', display: 'flex', justifyContent: 'center' }}><Icon name="clipboard" size={44} stroke={1.2} /></div>
         <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)' }}>
           Nessun allenamento
         </div>
@@ -498,7 +498,7 @@ function RestDayView({ streak, onClearDay }: { streak: number; onClearDay: () =>
   return (
     <div style={{ padding: '20px 20px', textAlign: 'center' }}>
       <div style={{ padding: '40px 0 24px' }}>
-        <div style={{ fontSize: 52, marginBottom: 8 }}>😴</div>
+        <div style={{ marginBottom: 8, color: 'var(--muted)', display: 'flex', justifyContent: 'center' }}><Icon name="rest" size={52} stroke={1.2} /></div>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: 'var(--ink)' }}>
           Giorno di Riposo
         </div>
@@ -511,7 +511,7 @@ function RestDayView({ streak, onClearDay }: { streak: number; onClearDay: () =>
             background: 'var(--surface)', border: '1px solid var(--line)',
             borderRadius: 'var(--r-pill)', padding: '8px 16px',
           }}>
-            <span style={{ fontSize: 16 }}>🔥</span>
+            <Icon name="fire" size={18} />
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
               {streak} giorni di streak
             </span>
@@ -572,8 +572,8 @@ function PlanPickerSheet({
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={onMarkRest}>
-              😴 Riposo
+            <button className="btn btn-ghost" style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} onClick={onMarkRest}>
+              <Icon name="rest" size={16} /> Riposo
             </button>
             <button className="btn btn-ghost" style={{ flex: 1 }} onClick={onClearDay}>
               Cancella

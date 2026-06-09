@@ -39,7 +39,7 @@ export default function SchedeList({ user, onUser, workoutPlans, onOpenPlan, onC
         <div style={{ padding: '0 20px' }}>
           {workoutPlans.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <div style={{ fontSize: 44, marginBottom: 8 }}>📋</div>
+              <div style={{ marginBottom: 8, color: 'var(--muted)', display: 'flex', justifyContent: 'center' }}><Icon name="clipboard" size={44} stroke={1.2} /></div>
               <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)' }}>Nessuna scheda</div>
               <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6, fontFamily: 'var(--font-mono)' }}>
                 Crea la tua prima scheda di allenamento

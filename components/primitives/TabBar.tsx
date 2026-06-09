@@ -34,11 +34,7 @@ export default function TabBar({ screen, onNav }: TabBarProps) {
         className="tab-fab"
         onClick={() => onNav('overview')}
         aria-label="Panoramica"
-        style={{
-          background: 'var(--ink)',
-          color: 'var(--lime)',
-          opacity: screen === 'overview' ? 0.85 : 1,
-        }}>
+        style={{ opacity: screen === 'overview' ? 0.85 : 1 }}>
         <Icon name="flash" size={24} stroke={2} />
       </button>
 
