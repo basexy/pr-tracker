@@ -50,10 +50,10 @@ export function usePRData(): PRDataState {
     return () => { cancelled = true }
   }, [tick])
 
-  // Realtime subscription on pr_entries
+  // Realtime: pr_entries (live insert) + exercises (insert/update/delete)
   useEffect(() => {
     const channel = supabase
-      .channel('pr_entries_changes')
+      .channel('app_changes')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'pr_entries' },
@@ -68,6 +68,30 @@ export function usePRData(): PRDataState {
               (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
             ))
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'exercises' },
+        (payload) => {
+          const ex = payload.new as Exercise
+          setExercises((prev) => prev.some((e) => e.id === ex.id) ? prev : [...prev, ex])
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'exercises' },
+        (payload) => {
+          const ex = payload.new as Exercise
+          setExercises((prev) => prev.map((e) => e.id === ex.id ? ex : e))
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'exercises' },
+        (payload) => {
+          const id = (payload.old as { id: string }).id
+          setExercises((prev) => prev.filter((e) => e.id !== id))
         }
       )
       .subscribe()
