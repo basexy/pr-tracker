@@ -73,18 +73,23 @@ export default function PRList({ user, onUser, exercises, entries, onOpenExercis
                   }}>
                     {ex.name}
                   </div>
-                  {pr && pr.delta > 0 && (
-                    <div className="mono" style={{ fontSize: 11, color: 'var(--lime-deep)', marginTop: 2 }}>
-                      ^ +{pr.delta}{ex.unit}
-                    </div>
-                  )}
                 </div>
                 {pr ? (
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <span className="mono tnum" style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink)', letterSpacing: -0.5 }}>
-                      {pr.v}
-                    </span>
-                    <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 2 }}>{ex.unit}</span>
+                    <div>
+                      <span className="mono tnum" style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink)', letterSpacing: -0.5 }}>
+                        {pr.v}
+                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 2 }}>{ex.unit}</span>
+                    </div>
+                    <div className="mono" style={{
+                      fontSize: 11, marginTop: 2,
+                      display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2,
+                      color: pr.delta > 0 ? 'var(--lime-deep)' : 'var(--muted)',
+                    }}>
+                      <Icon name="arrowUp" size={10} stroke={2.5} />
+                      {pr.delta > 0 ? '+' : ''}{pr.delta}{ex.unit}
+                    </div>
                   </div>
                 ) : (
                   <span className="mono" style={{ fontSize: 12, color: 'var(--muted)', flexShrink: 0 }}>—</span>

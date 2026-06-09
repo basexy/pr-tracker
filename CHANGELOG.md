@@ -5,6 +5,13 @@ Formato: `[versione] — data — descrizione`
 
 ---
 
+## [1.13.0] — 2026-06-09
+
+### Modificato
+- **PRList**: delta incremento spostato sotto il valore kg (lato destro), sempre visibile; verde se positivo, grigio se negativo/zero; icona `arrowUp` al posto del carattere `^`
+
+---
+
 ## [1.12.0] — 2026-06-09
 
 ### Aggiunto
