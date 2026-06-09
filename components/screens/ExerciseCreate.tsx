@@ -35,34 +35,34 @@ export default function ExerciseCreate({ exercise, onBack, onCreated }: Exercise
   }
 
   return (
-    <div className="screen-scroll" style={{ paddingBottom: 130 }}>
+    <div className="screen">
+      {/* Sticky header */}
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 16px 4px',
+        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+        padding: '56px 20px 14px',
+        background: 'var(--bg)',
+        borderBottom: '1px solid var(--line)',
+        display: 'flex', alignItems: 'flex-end', gap: 12,
       }}>
-        <button onClick={onBack} style={{
-          appearance: 'none', border: 0, background: 'var(--surface-2)',
-          width: 40, height: 40, borderRadius: 'var(--r-pill)',
-          color: 'var(--ink)', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon name="chevL" size={20} stroke={2} />
+        <button
+          onClick={onBack}
+          style={{
+            appearance: 'none', border: 0, background: 'var(--surface-2)',
+            cursor: 'pointer', width: 36, height: 36, borderRadius: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--muted)', flexShrink: 0,
+          }}>
+          <Icon name="chevL" size={18} />
         </button>
-        <div className="mono" style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-          {isEdit ? 'Modifica esercizio' : 'Nuovo esercizio'}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>
+            {isEdit ? 'Modifica esercizio' : 'Nuovo esercizio'}
+          </div>
         </div>
-        <div style={{ width: 40 }} />
       </div>
 
-      <div style={{ padding: '12px 22px 0' }}>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: -1, lineHeight: 1.05 }}>
-          {isEdit ? 'Modifica.' : 'Crea esercizio.'}
-        </h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 8, marginBottom: 0 }}>
-          {isEdit
-            ? 'Aggiorna i dati di questo esercizio.'
-            : 'Aggiungi un nuovo esercizio da tracciare per Base e Dawg.'}
-        </p>
+      <div className="screen-scroll" style={{ paddingTop: 116, paddingBottom: 130 }}>
+      <div style={{ padding: '8px 22px 0' }}>
 
         {/* name */}
         <div style={{ marginTop: 24 }}>
@@ -140,6 +140,7 @@ export default function ExerciseCreate({ exercise, onBack, onCreated }: Exercise
             {saving ? 'Salvataggio…' : isEdit ? 'Salva modifiche' : 'Crea esercizio'}
           </button>
         </div>
+      </div>
       </div>
     </div>
   )

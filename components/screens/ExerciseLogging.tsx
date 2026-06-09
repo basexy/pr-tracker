@@ -8,6 +8,8 @@ import type { ExerciseLog, ExerciseLogSet, LogContext, PREntry } from '@/lib/typ
 interface ExerciseLoggingProps {
   ctx: LogContext
   entries: PREntry[]
+  otherEntries?: PREntry[]
+  otherName?: string
   onBack: () => void
   onSave: (sessionId: string, orderIndex: number, exerciseId: string, sets: ExerciseLogSet[]) => Promise<void>
 }
@@ -16,7 +18,7 @@ function buildDefaultSets(defaultSets: number, defaultReps: number, defaultKg: n
   return Array.from({ length: defaultSets }, () => ({ reps: defaultReps, kg: defaultKg, done: false }))
 }
 
-export default function ExerciseLogging({ ctx, entries, onBack, onSave }: ExerciseLoggingProps) {
+export default function ExerciseLogging({ ctx, entries, otherEntries, otherName, onBack, onSave }: ExerciseLoggingProps) {
   const { exercise, sessionId, orderIndex, defaultSets, defaultReps, defaultKg, existingLog } = ctx
 
   const [sets, setSets] = useState<ExerciseLogSet[]>(() => {
@@ -29,9 +31,7 @@ export default function ExerciseLogging({ ctx, entries, onBack, onSave }: Exerci
   const color = tagColor(exercise.tag)
 
   const pr = buildPRData(entries, exercise.id)
-  const nextTarget = pr
-    ? Math.ceil((pr.v + 1) / 5) * 5
-    : null
+  const otherPR = otherEntries ? buildPRData(otherEntries, exercise.id) : null
 
   // Debounced auto-save
   const scheduleSave = useCallback((newSets: ExerciseLogSet[]) => {
@@ -127,29 +127,43 @@ export default function ExerciseLogging({ ctx, entries, onBack, onSave }: Exerci
       </div>
 
       <div className="screen-scroll" style={{ paddingTop: 136 }}>
-        {/* Prossimo target */}
-        {pr && nextTarget && (
+        {/* PR attuale */}
+        {pr && (
           <div style={{
-            margin: '0 20px 14px',
-            padding: '12px 16px',
+            margin: '0 20px 8px',
+            padding: '14px 18px',
             borderRadius: 'var(--r-md)',
             background: 'var(--ink)', color: 'var(--bg)',
             display: 'flex', alignItems: 'center', gap: 12,
           }}>
             <div style={{
-              width: 34, height: 34, borderRadius: 'var(--r-pill)',
+              width: 36, height: 36, borderRadius: 'var(--r-pill)',
               background: 'var(--lime)', color: 'var(--lime-on)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
-              <Icon name="target" size={18} stroke={2} />
+              <Icon name="trophy" size={18} stroke={2} />
             </div>
-            <div style={{ flex: 1 }}>
-              <div className="mono" style={{ fontSize: 10, color: 'var(--lime)', letterSpacing: 1, textTransform: 'uppercase' }}>
-                Prossimo target
-              </div>
-              <div style={{ fontSize: 13, marginTop: 2, fontWeight: 500 }}>
-                PR attuale <b className="mono">{pr.v}{exercise.unit}</b> → target <b className="mono">{nextTarget}{exercise.unit}</b>
-              </div>
+            <div className="mono" style={{ fontSize: 10, color: 'var(--lime)', letterSpacing: 1.2, textTransform: 'uppercase', flex: 1 }}>
+              PR attuale
+            </div>
+            <div className="mono" style={{ fontSize: 36, fontWeight: 800, color: 'var(--bg)', letterSpacing: -1, lineHeight: 1 }}>
+              {pr.v}<span style={{ fontSize: 14, fontWeight: 500, marginLeft: 2 }}>{exercise.unit}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Other user PR */}
+        {otherPR && otherName && (
+          <div style={{
+            margin: '0 20px 14px',
+            padding: '10px 16px',
+            borderRadius: 'var(--r-md)',
+            background: 'var(--surface)', border: '1px solid var(--line)',
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div className="eyebrow" style={{ flex: 1 }}>PR {otherName}</div>
+            <div className="mono" style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)' }}>
+              {otherPR.v}<span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 2 }}>{exercise.unit}</span>
             </div>
           </div>
         )}

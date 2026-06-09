@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import TopBar from '@/components/primitives/TopBar'
 import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import { buildPRData } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
@@ -13,6 +12,7 @@ interface ExerciseListProps {
   entries: PREntry[]
   onOpenExercise: (id: string) => void
   onCreate: () => void
+  onBack?: () => void
   onEditExercise?: (id: string) => void
   onDeleteExercise?: (id: string) => void
 }
@@ -20,7 +20,7 @@ interface ExerciseListProps {
 const ALL_TAGS = ['tutti', 'petto', 'gambe', 'dorso', 'spalle', 'bicipiti', 'tricipiti']
 
 export default function ExerciseList({
-  user, onUser, exercises, entries, onOpenExercise, onCreate, onEditExercise, onDeleteExercise,
+  user, onUser, exercises, entries, onOpenExercise, onCreate, onBack, onEditExercise, onDeleteExercise,
 }: ExerciseListProps) {
   const [filter, setFilter] = useState('tutti')
   const [query, setQuery] = useState('')
@@ -37,12 +37,34 @@ export default function ExerciseList({
   })
 
   return (
-    <div className="screen-scroll">
-      <TopBar
-        eyebrow={`${exercises.length} esercizi tracciati`}
-        title="Esercizi"
-      />
+    <div className="screen">
+      {/* Sticky header */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+        padding: '56px 20px 14px',
+        background: 'var(--bg)',
+        borderBottom: '1px solid var(--line)',
+        display: 'flex', alignItems: 'flex-end', gap: 12,
+      }}>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              appearance: 'none', border: 0, background: 'var(--surface-2)',
+              cursor: 'pointer', width: 36, height: 36, borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--muted)', flexShrink: 0,
+            }}>
+            <Icon name="chevL" size={18} />
+          </button>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="eyebrow" style={{ marginBottom: 3 }}>{exercises.length} esercizi tracciati</div>
+          <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Esercizi</div>
+        </div>
+      </div>
 
+      <div className="screen-scroll" style={{ paddingTop: 116 }}>
       <div style={{ padding: '0 18px' }}>
         {/* search */}
         <div style={{
@@ -201,6 +223,7 @@ export default function ExerciseList({
           <Icon name="plus" size={16} stroke={2.2} />
           Crea nuovo esercizio
         </button>
+      </div>
       </div>
     </div>
   )

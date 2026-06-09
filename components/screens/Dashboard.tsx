@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import TopBar from '@/components/primitives/TopBar'
 import HeroPR from '@/components/primitives/HeroPR'
 import BarChart from '@/components/primitives/BarChart'
@@ -7,8 +8,12 @@ import Spark from '@/components/primitives/Spark'
 import Icon, { tagColor, tagDisplay } from '@/components/Icon'
 import {
   buildPRData, findLatestEntry, countPRsThisMonth, calcStreak, calcTop3,
+  fetchDayAssignments, fetchWorkoutSessionsRange, toDateStr,
 } from '@/lib/queries'
-import type { Exercise, PREntry, Screen, UserName } from '@/lib/types'
+import type { DayAssignment, Exercise, PREntry, Screen, UserName, WorkoutSession } from '@/lib/types'
+
+const IT_MONTHS_FULL = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
+const IT_DAYS_SHORT = ['Lu', 'Ma', 'Me', 'Gi', 'Ve', 'Sa', 'Do']
 
 interface DashboardProps {
   user: UserName
@@ -16,12 +21,13 @@ interface DashboardProps {
   exercises: Exercise[]
   baseEntries: PREntry[]
   dawgEntries: PREntry[]
+  workoutStreak: number
   onOpenExercise: (id: string) => void
   onNav: (t: Screen | 'input') => void
 }
 
 export default function Dashboard({
-  user, onUser, exercises, baseEntries, dawgEntries, onOpenExercise,
+  user, onUser, exercises, baseEntries, dawgEntries, workoutStreak, onOpenExercise,
 }: DashboardProps) {
   const entries = user === 'base' ? baseEntries : dawgEntries
   const otherEntries = user === 'base' ? dawgEntries : baseEntries
@@ -32,10 +38,8 @@ export default function Dashboard({
   const latestPR = latest ? buildPRData(entries, latest.exId) : null
 
   const prMonth = countPRsThisMonth(entries)
-  const streak = calcStreak(entries)
   const top3 = calcTop3(entries, exercises)
 
-  // Volume mock (6 months leading up to now) — derived from total entries
   const totalKg = entries.reduce((s, e) => s + Number(e.value), 0)
   const volData = [
     Math.round(totalKg * 0.43),
@@ -46,7 +50,6 @@ export default function Dashboard({
     totalKg,
   ]
 
-  // vs comparison: count exercises where user is ahead
   const meAhead = exercises.filter((ex) => {
     const me = buildPRData(entries, ex.id)
     const other = buildPRData(otherEntries, ex.id)
@@ -54,21 +57,42 @@ export default function Dashboard({
   }).length
   const otherAhead = exercises.length - meAhead
 
-  // Next target: exercise where user is closest below their next round number
-  const nextTargetEx = exercises.find((ex) => {
-    const pr = buildPRData(entries, ex.id)
-    return pr !== null
-  })
-  const nextTargetPR = nextTargetEx ? buildPRData(entries, nextTargetEx.id) : null
-  const nextTarget = nextTargetPR
-    ? Math.ceil((nextTargetPR.v + 1) / (nextTargetEx?.unit === 'reps' ? 5 : 5)) *
-      (nextTargetEx?.unit === 'reps' ? 5 : 5)
-    : null
-
   const today = new Date()
   const itDays = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato']
   const itMonths = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre']
   const eyebrow = `${itDays[today.getDay()]} ${today.getDate()} ${itMonths[today.getMonth()]}`
+
+  // ── Streak calendar ──────────────────────────────────────────────
+  const [calMonth, setCalMonth] = useState({ year: today.getFullYear(), month: today.getMonth() })
+  const [workoutDays, setWorkoutDays] = useState<Set<string>>(new Set())
+  const [restDays, setRestDays] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    const { year, month } = calMonth
+    const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+    const lastDay = new Date(year, month + 1, 0).getDate()
+    const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+    Promise.all([
+      fetchDayAssignments(user, startDate, endDate),
+      fetchWorkoutSessionsRange(user, startDate, endDate),
+    ]).then(([assignments, sessions]: [DayAssignment[], WorkoutSession[]]) => {
+      setWorkoutDays(new Set(sessions.filter((s) => s.completed_at != null).map((s) => s.date)))
+      setRestDays(new Set(assignments.filter((a) => a.is_rest).map((a) => a.date)))
+    }).catch(() => {})
+  }, [user, calMonth])
+
+  const prevMonth = () => setCalMonth(({ year, month }) => {
+    if (month === 0) return { year: year - 1, month: 11 }
+    return { year, month: month - 1 }
+  })
+  const nextMonth = () => setCalMonth(({ year, month }) => {
+    if (month === 11) return { year: year + 1, month: 0 }
+    return { year, month: month + 1 }
+  })
+
+  const calDays = buildCalendarDays(calMonth.year, calMonth.month)
+  const todayStr = toDateStr(today)
 
   if (entries.length === 0) {
     return (
@@ -104,33 +128,114 @@ export default function Dashboard({
           />
         )}
 
-        {/* TARGET strip */}
-        {nextTargetEx && nextTarget && (
-          <div style={{
-            marginTop: 10, padding: '14px 16px',
-            borderRadius: 'var(--r-md)',
-            background: 'var(--ink)', color: 'var(--bg)',
-            display: 'flex', alignItems: 'center', gap: 12,
-            animation: 'fadeUp .4s .05s both',
-          }}>
+        {/* ── STREAK CALENDAR ──────────────────────────────────── */}
+        <div style={{ marginTop: 10, animation: 'fadeUp .4s .05s both' }}>
+          {/* Counter */}
+          <div style={{ textAlign: 'center', padding: '24px 0 16px' }}>
             <div style={{
-              width: 36, height: 36, borderRadius: 'var(--r-pill)',
-              background: 'var(--lime)', color: 'var(--lime-on)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              fontFamily: 'var(--font-mono)', fontSize: 80, fontWeight: 800,
+              color: 'var(--lime-deep)', letterSpacing: -4, lineHeight: 1,
             }}>
-              <Icon name="target" size={20} stroke={2} />
+              {workoutStreak}
             </div>
-            <div style={{ flex: 1 }}>
-              <div className="mono" style={{ fontSize: 10, color: 'var(--lime)', letterSpacing: 1, textTransform: 'uppercase' }}>
-                Prossimo target
-              </div>
-              <div style={{ fontSize: 14, marginTop: 3, fontWeight: 500 }}>
-                {nextTargetEx.name} →{' '}
-                <b className="mono">{nextTarget}{nextTargetEx.unit}</b>
-              </div>
+            <div className="mono" style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 6 }}>
+              giorni di slancio
             </div>
           </div>
-        )}
+
+          {/* Month navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px 12px' }}>
+            <button
+              onClick={prevMonth}
+              style={{
+                appearance: 'none', border: 0, background: 'var(--surface-2)', cursor: 'pointer',
+                width: 34, height: 34, borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)',
+              }}>
+              <Icon name="chevL" size={16} />
+            </button>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, letterSpacing: 0.3, color: 'var(--ink)' }}>
+              {IT_MONTHS_FULL[calMonth.month]} {calMonth.year}
+            </div>
+            <button
+              onClick={nextMonth}
+              style={{
+                appearance: 'none', border: 0, background: 'var(--surface-2)', cursor: 'pointer',
+                width: 34, height: 34, borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)',
+              }}>
+              <Icon name="chevR" size={16} />
+            </button>
+          </div>
+
+          {/* Summary cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            <div className="card" style={{ padding: '14px 16px', textAlign: 'center' }}>
+              <div className="eyebrow" style={{ marginBottom: 6 }}>Slancio</div>
+              <div className="mono" style={{ fontSize: 32, fontWeight: 800, color: 'var(--lime-deep)', letterSpacing: -1 }}>
+                {workoutDays.size}
+              </div>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>giorni</div>
+            </div>
+            <div className="card" style={{ padding: '14px 16px', textAlign: 'center' }}>
+              <div className="eyebrow" style={{ marginBottom: 6 }}>Riposo</div>
+              <div className="mono" style={{ fontSize: 32, fontWeight: 800, color: 'var(--muted)', letterSpacing: -1 }}>
+                {restDays.size}
+              </div>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>giorni</div>
+            </div>
+          </div>
+
+          {/* Calendar grid */}
+          <div className="card" style={{ padding: '14px 12px' }}>
+            {/* Day headers */}
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+              marginBottom: 6,
+            }}>
+              {IT_DAYS_SHORT.map((d) => (
+                <div key={d} style={{
+                  textAlign: 'center', fontFamily: 'var(--font-mono)',
+                  fontSize: 10, fontWeight: 700, color: 'var(--muted)',
+                  letterSpacing: 0.5, padding: '2px 0',
+                }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+
+            {/* Day cells */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 }}>
+              {calDays.map((cell, i) => {
+                if (!cell) {
+                  return <div key={`empty-${i}`} />
+                }
+                const isWorkout = workoutDays.has(cell)
+                const isRest = restDays.has(cell)
+                const isToday = cell === todayStr
+                const dayNum = parseInt(cell.split('-')[2], 10)
+
+                return (
+                  <div key={cell} style={{
+                    aspectRatio: '1',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    borderRadius: 8,
+                    background: isWorkout ? 'var(--lime)' : isRest ? 'var(--surface-2)' : 'transparent',
+                    border: isToday ? '1.5px solid var(--lime-deep)' : '1.5px solid transparent',
+                    position: 'relative',
+                  }}>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: isWorkout ? 700 : 400,
+                      color: isWorkout ? 'var(--lime-on)' : isToday ? 'var(--lime-deep)' : isRest ? 'var(--muted)' : 'var(--ink)',
+                    }}>
+                      {dayNum}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
 
         {/* STATS grid */}
         <div style={{
@@ -144,9 +249,9 @@ export default function Dashboard({
             <div className="sub" style={{ color: 'var(--lime-deep)' }}>questo mese</div>
           </div>
           <div className="stat">
-            <div className="label">Streak</div>
-            <div className="value">{streak}<span className="u">sett</span></div>
-            <div className="sub">consecutive</div>
+            <div className="label">vs {otherName}</div>
+            <div className="value">{meAhead}<span className="u">—{otherAhead}</span></div>
+            <div className="sub">esercizi avanti</div>
           </div>
         </div>
 
@@ -162,23 +267,6 @@ export default function Dashboard({
             <BarChart data={volData} labels={['G', 'F', 'M', 'A', 'M', 'G']} w={332} h={84} />
           </div>
         )}
-
-        {/* vs comparison strip */}
-        <div className="card-flat" style={{
-          marginTop: 8, padding: '12px 16px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          animation: 'fadeUp .4s .2s both',
-        }}>
-          <div>
-            <div className="eyebrow">vs {otherName}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <span className="mono" style={{ fontSize: 22, fontWeight: 700, color: 'var(--lime-deep)' }}>{meAhead}</span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--muted)' }}>—</span>
-              <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>{otherAhead}</span>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 8 }}>esercizi avanti</span>
-            </div>
-          </div>
-        </div>
 
         {/* TOP 3 */}
         {top3.length > 0 && (
@@ -217,4 +305,21 @@ export default function Dashboard({
       </div>
     </div>
   )
+}
+
+// Build array of date strings (or null for empty cells) for a month grid starting on Monday
+function buildCalendarDays(year: number, month: number): (string | null)[] {
+  const firstDay = new Date(year, month, 1)
+  // JS getDay(): 0=Sun,1=Mon,...,6=Sat → convert to Mon-first: Mon=0,Tue=1,...,Sun=6
+  const startOffset = (firstDay.getDay() + 6) % 7
+  const lastDay = new Date(year, month + 1, 0).getDate()
+  const cells: (string | null)[] = []
+
+  for (let i = 0; i < startOffset; i++) cells.push(null)
+  for (let d = 1; d <= lastDay; d++) {
+    cells.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
+  }
+  // Pad to complete last row
+  while (cells.length % 7 !== 0) cells.push(null)
+  return cells
 }

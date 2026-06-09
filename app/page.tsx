@@ -220,6 +220,8 @@ export default function PRTrackerApp() {
           <ExerciseLogging
             ctx={logContext}
             entries={entries}
+            otherEntries={otherEntries}
+            otherName={user === 'base' ? 'Dawg' : 'Base'}
             onBack={() => setScreen('dash')}
             onSave={workout.logExercise}
           />
@@ -247,6 +249,7 @@ export default function PRTrackerApp() {
             exercises={exercises}
             baseEntries={baseEntries}
             dawgEntries={dawgEntries}
+            workoutStreak={workout.workoutStreak}
             onOpenExercise={openExercise}
             onNav={(t) => { if (t === 'input') setInputOpen(true); else handleNav(t as Screen) }}
           />
@@ -305,6 +308,7 @@ export default function PRTrackerApp() {
             exercises={exercises} entries={entries}
             onOpenExercise={(id) => openExercise(id, 'exercise-library')}
             onCreate={() => { setCreateSource('exercise-library'); setScreen('create') }}
+            onBack={() => setScreen('prof')}
             onEditExercise={(id) => { setCreateSource('exercise-library'); setEditExerciseId(id); setScreen('create') }}
             onDeleteExercise={handleDeleteExercise}
           />

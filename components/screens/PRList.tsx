@@ -90,10 +90,10 @@ export default function PRList({ user, onUser, exercises, entries, onOpenExercis
           style={{
             marginTop: 14, padding: '14px 16px',
             width: '100%',
-            background: 'transparent', color: 'var(--ink)',
-            border: '1.5px dashed var(--line-2)',
-            borderRadius: 'var(--r-md)',
-            fontFamily: 'inherit', fontSize: 14, fontWeight: 500,
+            background: 'var(--lime)', color: 'var(--lime-on)',
+            border: 'none',
+            borderRadius: 'var(--r-pill)',
+            fontFamily: 'inherit', fontSize: 15, fontWeight: 700,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             cursor: 'pointer',
           }}>
