@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import {
   fetchWorkoutPlans, fetchPlanExercises,
   fetchDayAssignments, upsertDayAssignment, deleteDayAssignment,
@@ -211,6 +212,47 @@ export function useWorkoutData(user: UserName, allExercises: Exercise[]): UseWor
 
   const refetchPlans = useCallback(() => setPlansTick((n) => n + 1), [])
   const refetchDay = useCallback(() => setDayTick((n) => n + 1), [])
+
+  // Realtime sync for workout tables
+  useEffect(() => {
+    const channel = supabase
+      .channel('workout_changes')
+      // workout_plans: update state inline
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'workout_plans' },
+        (payload) => {
+          const p = payload.new as WorkoutPlan
+          setWorkoutPlans((prev) => prev.some((x) => x.id === p.id) ? prev : [...prev, p])
+        }
+      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'workout_plans' },
+        (payload) => {
+          const p = payload.new as WorkoutPlan
+          setWorkoutPlans((prev) => prev.map((x) => x.id === p.id ? p : x))
+        }
+      )
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'workout_plans' },
+        (payload) => {
+          const id = (payload.old as { id: string }).id
+          setWorkoutPlans((prev) => prev.filter((x) => x.id !== id))
+        }
+      )
+      // Day-specific tables: refetch (data is cross-referenced by user + date)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'day_assignments' },
+        () => setDayTick((n) => n + 1)
+      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_sessions' },
+        () => setDayTick((n) => n + 1)
+      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'exercise_logs' },
+        () => setDayTick((n) => n + 1)
+      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_exercises' },
+        () => setDayTick((n) => n + 1)
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   return {
     workoutPlans, currentDate, dayData, dayLoading, workoutStreak,
