@@ -66,16 +66,26 @@ export default function PRList({ user, onUser, exercises, entries, onOpenExercis
                   width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
                   background: tagColor(ex.tag),
                 }} />
-                <span style={{
-                  flex: 1, fontSize: 15, fontWeight: 500, color: 'var(--ink)',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {ex.name}
-                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 15, fontWeight: 500, color: 'var(--ink)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {ex.name}
+                  </div>
+                  {pr && pr.delta > 0 && (
+                    <div className="mono" style={{ fontSize: 11, color: 'var(--lime-deep)', marginTop: 2 }}>
+                      ^ +{pr.delta}{ex.unit}
+                    </div>
+                  )}
+                </div>
                 {pr ? (
-                  <span className="mono tnum" style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)', flexShrink: 0 }}>
-                    {pr.v}<span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 1 }}>{ex.unit}</span>
-                  </span>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span className="mono tnum" style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink)', letterSpacing: -0.5 }}>
+                      {pr.v}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 2 }}>{ex.unit}</span>
+                  </div>
                 ) : (
                   <span className="mono" style={{ fontSize: 12, color: 'var(--muted)', flexShrink: 0 }}>—</span>
                 )}

@@ -119,14 +119,6 @@ export default function Dashboard({
       />
 
       <div style={{ padding: '0 18px' }}>
-        {/* HERO */}
-        {latestEx && latestPR && (
-          <HeroPR
-            exercise={latestEx}
-            pr={latestPR}
-            onOpen={() => onOpenExercise(latestEx.id)}
-          />
-        )}
 
         {/* ── STREAK CALENDAR ──────────────────────────────────── */}
         <div style={{ marginTop: 10, animation: 'fadeUp .4s .05s both' }}>
@@ -236,6 +228,15 @@ export default function Dashboard({
             </div>
           </div>
         </div>
+
+        {/* HERO */}
+        {latestEx && latestPR && (
+          <HeroPR
+            exercise={latestEx}
+            pr={latestPR}
+            onOpen={() => onOpenExercise(latestEx.id)}
+          />
+        )}
 
         {/* STATS grid */}
         <div style={{

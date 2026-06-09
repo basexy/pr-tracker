@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Icon, { tagColor, tagDisplay } from '@/components/Icon'
-import { buildPRData } from '@/lib/queries'
 import type { Exercise, PREntry, UserName } from '@/lib/types'
 
 interface ExerciseListProps {
@@ -124,31 +123,30 @@ export default function ExerciseList({
             </div>
           )}
           {filtered.map((ex) => {
-            const pr = buildPRData(entries, ex.id)
             const isConfirming = confirmDeleteId === ex.id
             return (
               <div key={ex.id} style={{ position: 'relative' }}>
                 <button className="ex-card" onClick={() => { if (!isConfirming) onOpenExercise(ex.id) }}
                   style={{ width: '100%' }}>
-                  <div className="rail" style={{ background: tagColor(ex.tag) }} />
                   <div className="body">
-                    <div style={{ minWidth: 0 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <div className="name">{ex.name}</div>
-                      <div className="meta">#{tagDisplay(ex.tag)} · {pr?.date ?? '—'}</div>
+                      <div style={{ marginTop: 4 }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '2px 7px', borderRadius: 5,
+                          background: tagColor(ex.tag) + '28',
+                          color: tagColor(ex.tag),
+                          fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700,
+                          letterSpacing: 0.4,
+                        }}>
+                          #{tagDisplay(ex.tag)}
+                        </span>
+                      </div>
                     </div>
-                    <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       {!isConfirming && (
                         <>
-                          <div style={{ textAlign: 'right', marginRight: 6 }}>
-                            {pr ? (
-                              <>
-                                <div className="value">{pr.v}<span className="u">{ex.unit}</span></div>
-                                <div className="delta">▲ +{pr.delta}</div>
-                              </>
-                            ) : (
-                              <div className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>nessun PR</div>
-                            )}
-                          </div>
                           {onEditExercise && (
                             <button
                               onClick={(e) => { e.stopPropagation(); onEditExercise(ex.id) }}

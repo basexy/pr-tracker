@@ -146,8 +146,8 @@ export default function ExerciseLogging({ ctx, entries, otherEntries, otherName,
             <div className="mono" style={{ fontSize: 10, color: 'var(--lime)', letterSpacing: 1.2, textTransform: 'uppercase', flex: 1 }}>
               PR attuale
             </div>
-            <div className="mono" style={{ fontSize: 36, fontWeight: 800, color: 'var(--bg)', letterSpacing: -1, lineHeight: 1 }}>
-              {pr.v}<span style={{ fontSize: 14, fontWeight: 500, marginLeft: 2 }}>{exercise.unit}</span>
+            <div className="mono" style={{ fontSize: 36, fontWeight: 800, color: 'var(--lime)', letterSpacing: -1, lineHeight: 1 }}>
+              {pr.v}<span style={{ fontSize: 14, fontWeight: 500, marginLeft: 2, color: 'var(--bg)' }}>{exercise.unit}</span>
             </div>
           </div>
         )}
