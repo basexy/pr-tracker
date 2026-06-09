@@ -13,6 +13,7 @@ import TabBar from '@/components/primitives/TabBar'
 
 // Screens — PR tracker (unchanged)
 import Dashboard from '@/components/screens/Dashboard'
+import PRList from '@/components/screens/PRList'
 import ExerciseList from '@/components/screens/ExerciseList'
 import ExerciseDetail from '@/components/screens/ExerciseDetail'
 import ExerciseCreate from '@/components/screens/ExerciseCreate'
@@ -92,7 +93,8 @@ export default function PRTrackerApp() {
   const [pickerContext, setPickerContext] = useState<PickerContext | null>(null)
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
   const [editExerciseId, setEditExerciseId] = useState<string | null>(null)
-  const [createSource, setCreateSource] = useState<'list' | 'picker' | 'prof'>('list')
+  const [createSource, setCreateSource] = useState<'list' | 'picker' | 'prof' | 'exercise-library'>('list')
+  const [detailSource, setDetailSource] = useState<Screen>('list')
 
   const workout = useWorkoutData(user ?? 'base', exercises)
 
@@ -101,8 +103,9 @@ export default function PRTrackerApp() {
     setScreen(target)
   }, [])
 
-  const openExercise = useCallback((id: string) => {
+  const openExercise = useCallback((id: string, source: Screen = 'list') => {
     setExerciseId(id)
+    setDetailSource(source)
     setScreen('detail')
   }, [])
 
@@ -216,6 +219,7 @@ export default function PRTrackerApp() {
         return logContext ? (
           <ExerciseLogging
             ctx={logContext}
+            entries={entries}
             onBack={() => setScreen('dash')}
             onSave={workout.logExercise}
           />
@@ -286,12 +290,22 @@ export default function PRTrackerApp() {
       // ── PR tracker ─────────────────────────────────────────────
       case 'list':
         return (
+          <PRList
+            user={user!} onUser={setUser}
+            exercises={exercises} entries={entries}
+            onOpenExercise={(id) => openExercise(id, 'list')}
+            onAddPR={() => setInputOpen(true)}
+          />
+        )
+
+      case 'exercise-library':
+        return (
           <ExerciseList
             user={user!} onUser={setUser}
             exercises={exercises} entries={entries}
-            onOpenExercise={openExercise}
-            onCreate={() => { setCreateSource('list'); setScreen('create') }}
-            onEditExercise={(id) => { setCreateSource('list'); setEditExerciseId(id); setScreen('create') }}
+            onOpenExercise={(id) => openExercise(id, 'exercise-library')}
+            onCreate={() => { setCreateSource('exercise-library'); setScreen('create') }}
+            onEditExercise={(id) => { setCreateSource('exercise-library'); setEditExerciseId(id); setScreen('create') }}
             onDeleteExercise={handleDeleteExercise}
           />
         )
@@ -313,7 +327,7 @@ export default function PRTrackerApp() {
             accent={accent} onAccent={setAccent}
             entries={entries}
             exercises={exercises}
-            onOpenExerciseList={() => setScreen('list')}
+            onOpenExerciseList={() => setScreen('exercise-library')}
             onCreateExercise={() => { setCreateSource('prof'); setEditExerciseId(null); setScreen('create') }}
             onEditExercise={(id) => { setCreateSource('prof'); setEditExerciseId(id); setScreen('create') }}
             onDeleteExercise={handleDeleteExercise}
@@ -325,7 +339,7 @@ export default function PRTrackerApp() {
           <ExerciseDetail
             exercise={currentEx} user={user!} onUser={setUser}
             entries={entries} otherEntries={otherEntries}
-            onBack={() => setScreen('list')}
+            onBack={() => setScreen(detailSource)}
             onAddPR={() => setInputOpen(true)}
             onDeleteEntry={handleDeleteEntry}
           />
@@ -338,6 +352,7 @@ export default function PRTrackerApp() {
             onBack={() => {
               setEditExerciseId(null)
               if (createSource === 'picker') setScreen('exercise-picker')
+              else if (createSource === 'exercise-library') setScreen('exercise-library')
               else if (createSource === 'prof') setScreen('prof')
               else setScreen('list')
             }}
@@ -345,6 +360,7 @@ export default function PRTrackerApp() {
               setEditExerciseId(null)
               refetch()
               if (createSource === 'picker') setScreen('exercise-picker')
+              else if (createSource === 'exercise-library') setScreen('exercise-library')
               else if (createSource === 'prof') setScreen('prof')
               else setScreen('list')
             }}

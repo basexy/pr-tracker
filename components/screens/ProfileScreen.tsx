@@ -4,6 +4,7 @@ import { useState } from 'react'
 import TopBar from '@/components/primitives/TopBar'
 import Icon from '@/components/Icon'
 import { calcStreak } from '@/lib/queries'
+import { APP_VERSION } from '@/lib/version'
 import type { Accent, Exercise, PREntry, Theme, UserName } from '@/lib/types'
 
 interface ProfileScreenProps {
@@ -55,7 +56,7 @@ export default function ProfileScreen({
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1 }}>{fullName}</div>
               <div className="mono" style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                PR.TRACKER · v1
+                WORKOUT.TRACKER · v{APP_VERSION}
               </div>
             </div>
           </div>
@@ -128,21 +129,6 @@ export default function ProfileScreen({
           </div>
         </div>
 
-        {/* PREFERENCES */}
-        <div style={{ marginTop: 18 }}>
-          <div className="eyebrow" style={{ padding: '0 4px 8px' }}>Preferenze</div>
-          <div className="row-group">
-            <div className="row">
-              <span style={{ fontSize: 14 }}>Unità predefinita</span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--muted)' }}>kg</span>
-            </div>
-            <div className="row">
-              <span style={{ fontSize: 14 }}>Notifiche PR di {user === 'base' ? 'Dawg' : 'Base'}</span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--lime-deep)' }}>on</span>
-            </div>
-          </div>
-        </div>
-
         {/* EXERCISES LINK */}
         <div style={{ marginTop: 18 }}>
           <div className="eyebrow" style={{ padding: '0 4px 8px' }}>Esercizi</div>
@@ -172,7 +158,7 @@ export default function ProfileScreen({
         {/* footer */}
         <div style={{ textAlign: 'center', marginTop: 28, paddingBottom: 16 }}>
           <div className="mono" style={{ fontSize: 10, color: 'var(--subtle)', letterSpacing: 1 }}>
-            PR.TRACKER · v1 · made for Base &amp; Dawg
+            WORKOUT.TRACKER · v{APP_VERSION} · Base &amp; Dawg
           </div>
         </div>
       </div>

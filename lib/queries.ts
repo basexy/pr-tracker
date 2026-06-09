@@ -67,10 +67,11 @@ export async function deletePREntry(id: string): Promise<void> {
 }
 
 export async function deleteExercise(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('exercises')
-    .delete()
-    .eq('id', id)
+  // Delete dependent records first to avoid FK constraint failures
+  await supabase.from('pr_entries').delete().eq('exercise_id', id)
+  await supabase.from('exercise_logs').delete().eq('exercise_id', id)
+  await supabase.from('plan_exercises').delete().eq('exercise_id', id)
+  const { error } = await supabase.from('exercises').delete().eq('id', id)
   if (error) throw error
 }
 

@@ -82,6 +82,7 @@ export type Screen =
   | 'dash'
   | 'overview'
   | 'list'
+  | 'exercise-library'
   | 'hist'
   | 'prof'
   | 'detail'

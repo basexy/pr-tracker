@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Icon, { tagColor } from '@/components/Icon'
-import type { ExerciseLog, ExerciseLogSet, LogContext } from '@/lib/types'
+import { buildPRData } from '@/lib/queries'
+import type { ExerciseLog, ExerciseLogSet, LogContext, PREntry } from '@/lib/types'
 
 interface ExerciseLoggingProps {
   ctx: LogContext
+  entries: PREntry[]
   onBack: () => void
   onSave: (sessionId: string, orderIndex: number, exerciseId: string, sets: ExerciseLogSet[]) => Promise<void>
 }
@@ -14,7 +16,7 @@ function buildDefaultSets(defaultSets: number, defaultReps: number, defaultKg: n
   return Array.from({ length: defaultSets }, () => ({ reps: defaultReps, kg: defaultKg, done: false }))
 }
 
-export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLoggingProps) {
+export default function ExerciseLogging({ ctx, entries, onBack, onSave }: ExerciseLoggingProps) {
   const { exercise, sessionId, orderIndex, defaultSets, defaultReps, defaultKg, existingLog } = ctx
 
   const [sets, setSets] = useState<ExerciseLogSet[]>(() => {
@@ -25,6 +27,11 @@ export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLogging
   const [saving, setSaving] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const color = tagColor(exercise.tag)
+
+  const pr = buildPRData(entries, exercise.id)
+  const nextTarget = pr
+    ? Math.ceil((pr.v + 1) / 5) * 5
+    : null
 
   // Debounced auto-save
   const scheduleSave = useCallback((newSets: ExerciseLogSet[]) => {
@@ -120,6 +127,33 @@ export default function ExerciseLogging({ ctx, onBack, onSave }: ExerciseLogging
       </div>
 
       <div className="screen-scroll" style={{ paddingTop: 136 }}>
+        {/* Prossimo target */}
+        {pr && nextTarget && (
+          <div style={{
+            margin: '0 20px 14px',
+            padding: '12px 16px',
+            borderRadius: 'var(--r-md)',
+            background: 'var(--ink)', color: 'var(--bg)',
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 'var(--r-pill)',
+              background: 'var(--lime)', color: 'var(--lime-on)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Icon name="target" size={18} stroke={2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--lime)', letterSpacing: 1, textTransform: 'uppercase' }}>
+                Prossimo target
+              </div>
+              <div style={{ fontSize: 13, marginTop: 2, fontWeight: 500 }}>
+                PR attuale <b className="mono">{pr.v}{exercise.unit}</b> → target <b className="mono">{nextTarget}{exercise.unit}</b>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Progress indicator */}
         <div style={{ padding: '0 20px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ flex: 1, height: 4, background: 'var(--surface-2)', borderRadius: 2, overflow: 'hidden' }}>
