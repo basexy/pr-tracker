@@ -13,15 +13,18 @@ interface ExerciseListProps {
   entries: PREntry[]
   onOpenExercise: (id: string) => void
   onCreate: () => void
+  onEditExercise?: (id: string) => void
+  onDeleteExercise?: (id: string) => void
 }
 
 const ALL_TAGS = ['tutti', 'petto', 'gambe', 'dorso', 'spalle', 'bicipiti', 'tricipiti']
 
 export default function ExerciseList({
-  user, onUser, exercises, entries, onOpenExercise, onCreate,
+  user, onUser, exercises, entries, onOpenExercise, onCreate, onEditExercise, onDeleteExercise,
 }: ExerciseListProps) {
   const [filter, setFilter] = useState('tutti')
   const [query, setQuery] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const filtered = exercises.filter((e) => {
     if (filter !== 'tutti') {
@@ -100,28 +103,84 @@ export default function ExerciseList({
           )}
           {filtered.map((ex) => {
             const pr = buildPRData(entries, ex.id)
+            const isConfirming = confirmDeleteId === ex.id
             return (
-              <button key={ex.id} className="ex-card" onClick={() => onOpenExercise(ex.id)}>
-                <div className="rail" style={{ background: tagColor(ex.tag) }} />
-                <div className="body">
-                  <div style={{ minWidth: 0 }}>
-                    <div className="name">{ex.name}</div>
-                    <div className="meta">#{tagDisplay(ex.tag)} · {pr?.date ?? '—'}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    {pr ? (
-                      <>
-                        <div className="value">
-                          {pr.v}<span className="u">{ex.unit}</span>
+              <div key={ex.id} style={{ position: 'relative' }}>
+                <button className="ex-card" onClick={() => { if (!isConfirming) onOpenExercise(ex.id) }}
+                  style={{ width: '100%' }}>
+                  <div className="rail" style={{ background: tagColor(ex.tag) }} />
+                  <div className="body">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="name">{ex.name}</div>
+                      <div className="meta">#{tagDisplay(ex.tag)} · {pr?.date ?? '—'}</div>
+                    </div>
+                    <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {!isConfirming && (
+                        <>
+                          <div style={{ textAlign: 'right', marginRight: 6 }}>
+                            {pr ? (
+                              <>
+                                <div className="value">{pr.v}<span className="u">{ex.unit}</span></div>
+                                <div className="delta">▲ +{pr.delta}</div>
+                              </>
+                            ) : (
+                              <div className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>nessun PR</div>
+                            )}
+                          </div>
+                          {onEditExercise && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onEditExercise(ex.id) }}
+                              style={{
+                                appearance: 'none', border: 0, cursor: 'pointer',
+                                width: 30, height: 30, borderRadius: 8,
+                                background: 'var(--surface-2)', color: 'var(--muted)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                              }}>
+                              <Icon name="edit" size={14} stroke={1.8} />
+                            </button>
+                          )}
+                          {onDeleteExercise && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(ex.id) }}
+                              style={{
+                                appearance: 'none', border: 0, cursor: 'pointer',
+                                width: 30, height: 30, borderRadius: 8,
+                                background: 'var(--surface-2)', color: 'var(--muted)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                              }}>
+                              <Icon name="trash" size={14} stroke={1.8} />
+                            </button>
+                          )}
+                        </>
+                      )}
+                      {isConfirming && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null) }}
+                            style={{
+                              appearance: 'none', border: '1px solid var(--line-2)', cursor: 'pointer',
+                              background: 'var(--surface-2)', color: 'var(--muted)',
+                              borderRadius: 8, padding: '5px 10px',
+                              fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600,
+                            }}>
+                            No
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onDeleteExercise!(ex.id); setConfirmDeleteId(null) }}
+                            style={{
+                              appearance: 'none', border: 0, cursor: 'pointer',
+                              background: '#ef4444', color: '#fff',
+                              borderRadius: 8, padding: '5px 10px',
+                              fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600,
+                            }}>
+                            Elimina
+                          </button>
                         </div>
-                        <div className="delta">▲ +{pr.delta}</div>
-                      </>
-                    ) : (
-                      <div className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>nessun PR</div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              </div>
             )
           })}
         </div>

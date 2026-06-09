@@ -289,7 +289,10 @@ export default function PRTrackerApp() {
           <ExerciseList
             user={user!} onUser={setUser}
             exercises={exercises} entries={entries}
-            onOpenExercise={openExercise} onCreate={() => { setCreateSource('list'); setScreen('create') }}
+            onOpenExercise={openExercise}
+            onCreate={() => { setCreateSource('list'); setScreen('create') }}
+            onEditExercise={(id) => { setCreateSource('list'); setEditExerciseId(id); setScreen('create') }}
+            onDeleteExercise={handleDeleteExercise}
           />
         )
 
@@ -310,6 +313,7 @@ export default function PRTrackerApp() {
             accent={accent} onAccent={setAccent}
             entries={entries}
             exercises={exercises}
+            onOpenExerciseList={() => setScreen('list')}
             onCreateExercise={() => { setCreateSource('prof'); setEditExerciseId(null); setScreen('create') }}
             onEditExercise={(id) => { setCreateSource('prof'); setEditExerciseId(id); setScreen('create') }}
             onDeleteExercise={handleDeleteExercise}

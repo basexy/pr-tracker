@@ -3,7 +3,7 @@ import {
   X, Check, CaretLeft, CaretRight, CaretDown, ArrowUp, ArrowLeft, Trophy, Lightning,
   PencilSimple, Trash, Moon, Sun, Palette, Target, Circle, CalendarBlank,
   Note, Medal, ArrowsLeftRight, BookOpen, ClipboardText, CheckCircle,
-  Barbell, SmileyMeh, ArrowCounterClockwise, Fire,
+  Barbell, MoonStars, ArrowCounterClockwise, Fire,
 } from '@phosphor-icons/react'
 
 type PhosphorWeight = 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'
@@ -42,7 +42,7 @@ const ICON_MAP: Record<string, PhosphorComp> = {
   book:       BookOpen,
   clipboard:  ClipboardText,
   barbell:    Barbell,
-  rest:       SmileyMeh,
+  rest:       MoonStars,
   reset:      ArrowCounterClockwise,
   fire:       Fire,
 }

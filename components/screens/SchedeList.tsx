@@ -25,13 +25,27 @@ export default function SchedeList({ user, onUser, workoutPlans, onOpenPlan, onC
         padding: '56px 20px 14px', background: 'var(--bg)',
         borderBottom: '1px solid var(--line)',
       }}>
-        <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>
-            Allenamento
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>
+              Allenamento
+            </div>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: 'var(--ink)' }}>
+              Le mie schede
+            </h1>
           </div>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: 'var(--ink)' }}>
-            Le mie schede
-          </h1>
+          <button
+            onClick={() => setShowCreate(true)}
+            style={{
+              appearance: 'none', border: 0, cursor: 'pointer',
+              width: 38, height: 38, borderRadius: 12,
+              background: '#C0E840', color: '#161412',
+              fontWeight: 800, fontSize: 22, lineHeight: 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 2,
+            }}>
+            +
+          </button>
         </div>
       </div>
 
@@ -53,11 +67,6 @@ export default function SchedeList({ user, onUser, workoutPlans, onOpenPlan, onC
             </div>
           )}
 
-          <button
-            onClick={() => setShowCreate(true)}
-            className="btn btn-primary">
-            + Crea nuova scheda
-          </button>
         </div>
       </div>
 
